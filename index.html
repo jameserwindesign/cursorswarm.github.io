@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mouse Cursor Swarm</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.4.0/p5.min.js"></script>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background: #002FA7;
+            overflow: hidden;
+            cursor: none;
+        }
+    </style>
+</head>
+<body>
+    <script>
+        let cursors = [];
+        let cursorImg;
+        let isExcited = false;
+        const numCursors = 1000;
+
+        function preload() {
+            cursorImg = loadImage('cursor.png');
+        }
+
+        function setup() {
+            createCanvas(windowWidth, windowHeight);
+            
+            // Initialize cursor swarm
+            for (let i = 0; i < numCursors; i++) {
+                cursors.push({
+                    x: width / 2,
+                    y: height / 2,
+                    prevX: width / 2,
+                    prevY: height / 2,
+                    targetX: width / 2,
+                    targetY: height / 2,
+                    speed: random(0.02, 0.2), 
+                    size: 0.4,
+                    offset: random(1, 2000),
+                    angle: random(TWO_PI),
+                    rotation: 0
+                });
+            }
+        }
+
+        function draw() {
+            background(0, 47, 167); 
+            
+        
+            for (let i = 0; i < cursors.length; i++) {
+                let cursor = cursors[i];
+                
+                cursor.prevX = cursor.x;
+                cursor.prevY = cursor.y;
+                
+                let offsetX = cos(cursor.angle + i * 0.3) * cursor.offset;
+                let offsetY = sin(cursor.angle + i * 0.3) * cursor.offset;
+                
+                cursor.targetX = mouseX + offsetX;
+                cursor.targetY = mouseY + offsetY;
+                
+                cursor.x = lerp(cursor.x, cursor.targetX, cursor.speed);
+                cursor.y = lerp(cursor.y, cursor.targetY, cursor.speed);
+                
+                let deltaX = cursor.x - cursor.prevX;
+                let deltaY = cursor.y - cursor.prevY;
+                if (deltaX !== 0 || deltaY !== 0) {
+                    cursor.rotation = atan2(deltaY, deltaX) + PI/2;
+                }
+                
+                push();
+                translate(cursor.x, cursor.y);
+                rotate(cursor.rotation);
+                
+       
+                
+                scale(cursor.size);
+                imageMode(CENTER);
+                image(cursorImg, 0, 0);
+                
+                pop();
+            }
+            
+            push();
+            translate(mouseX, mouseY);
+            
+            noTint();
+            scale(0.4);
+            imageMode(CENTER);
+            image(cursorImg, 0, 0);
+            pop();
+        }
+
+        function windowResized() {
+            resizeCanvas(windowWidth, windowHeight);
+        }
+
+ function mousePressed() {
+            isExcited = !isExcited;
+            console.log("Clicked! isExcited:", isExcited);
+            
+            if (isExcited) {
+                console.log("Setting to excited state");
+                for (let cursor of cursors) {
+                    cursor.offset = random(20, 2000);
+                    cursor.speed = random(0.03, 0.1);
+                    cursor.size = 0.4;
+                }
+            } else {
+                console.log("Setting to normal state");
+                for (let cursor of cursors) {
+                    cursor.offset = random(10, 1000);
+                    cursor.speed = random(0.02, 0.08);
+                    cursor.size = 0.4;
+                }
+            }
+        }
+    </script>
+</body>
+</html>
